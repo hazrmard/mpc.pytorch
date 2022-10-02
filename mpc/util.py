@@ -120,7 +120,11 @@ def get_traj(T, u, x_init, dynamics):
                 if f is not None:
                     new_x += f[t]
             else:
-                new_x = dynamics(Variable(xt), Variable(ut)).data
+                # new_x = dynamics(Variable(xt), Variable(ut)).data
+                # Converting to tensor, because for some cases was getting
+                # a memoryview instead of a tensor. Specifically when dynamics
+                # is a plain python function (and not Module, Function, LinDx)
+                new_x = torch.as_tensor(dynamics(Variable(xt), Variable(ut))).data
             x.append(new_x)
     x = torch.stack(x, dim=0)
     return x

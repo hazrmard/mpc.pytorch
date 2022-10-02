@@ -186,8 +186,18 @@ class MPC(Module):
         # QuadCost.c: [T, n_batch, n_tau]
         assert isinstance(cost, QuadCost) or \
             isinstance(cost, Module) or isinstance(cost, Function)
-        assert isinstance(dx, LinDx) or \
-            isinstance(dx, Module) or isinstance(dx, Function)
+
+        # This guard condition allows simple functions of the form
+        # x[t+1] = f(x[t], u[t]) to be used for dx, but only if gradient
+        # calculation is finite differences.
+        if callable(dx) and not isinstance(dx, (Module, Function)):
+            assert self.grad_method == GradMethods.FINITE_DIFF, \
+                ('dynamics function, if not a torch Module or Function, must '
+                'use finite differences for jacobian.')
+        else:
+            assert isinstance(dx, LinDx) or \
+                isinstance(dx, Module) or isinstance(dx, Function)
+
 
         # TODO: Clean up inferences, expansions, and assumptions made here.
         if self.n_batch is not None:
