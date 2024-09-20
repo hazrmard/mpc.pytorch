@@ -187,7 +187,7 @@ class MPC(Module):
         # Removing guard for isinstance(cost, Function),
         # so long as cost operates on tensors and is differentiable:
         assert isinstance(cost, QuadCost) or \
-            isinstance(cost, Module) # or isinstance(cost, Function)
+            isinstance(cost, Module) or callable(cost) # or isinstance(cost, Function)
 
         # This guard condition allows simple functions of the form
         # x[t+1] = f(x[t], u[t]) to be used for dx, but only if gradient
